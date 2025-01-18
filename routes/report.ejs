@@ -1,0 +1,55 @@
+<html>
+    <head>
+        <style>
+            table {
+                font-family: sans-serif;
+                width: 100%;
+                border-collapse: collapse;
+            }
+            td, th {
+                border: 1px solid #dddddd;
+                text-align: left;
+                padding: 8px;
+            }
+        </style>
+    </head>
+    <body>
+        <h3 style="text-align: center;">Cafe Management System</h3>
+        <table>
+            <tr>
+                <th>Name: <%= name %></th>
+                <td>Email: <%= email %></td>
+            </tr>
+            <tr>
+                <th>Contact Number: <%= contactnumber %></th> <!-- Ensure 'contactnumber' matches the variable name -->
+                <th>Payment Method: <%= paymentMethod %></th>
+            </tr>
+        </table> 
+        <h3>Product Details:</h3>
+        <table>
+            <tr>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Sub Total</th>
+            </tr>
+            <% if (productDetails && productDetails.length > 0) { %>
+                <% productDetails.forEach(product => { %>
+                    <tr>
+                        <td><%= product.name %></td> <!-- Ensure 'name' is the correct field for product name -->
+                        <td><%= product.quantity %></td>
+                        <td><%= product.price * product.quantity %></td>
+                        <td><%= parseFloat(product.price) * parseInt(product.quantity) %></td>
+> <!-- Ensure 'subTotal' matches the structure of the product object -->
+                    </tr>
+                <% }); %>
+            <% } else { %>
+                <tr>
+                    <td colspan="5" style="text-align: center;">No products available</td>
+                </tr>
+            <% } %>
+        </table>
+        <h3>Total: <%= total %></h3>
+        <h3>Thank you for visiting. Please visit again!</h3>
+    </body>
+</html>

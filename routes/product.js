@@ -23,7 +23,7 @@ router.post('/add',auth.authenticateToken,(req,res)=>{
 router.get('/get', (req,res)=>{
     // let query = "select p.id,p.name,p.description,p.status,c.id as categoryid,c.name as categoryName from product as p JOIN category as c  where p.categorgyid=c.id ";
       let query = "select * from product"
-      console.log(query);
+    //   console.log(query);
       
     connection.query(query,(err,results)=>{
         if(!err){

@@ -74,36 +74,60 @@ var transporter = nodemailer.createTransport({
 
 router.post('/forgetPassword', (req, res) => {
     const user = req.body;
-    const query = "SELECT email, password FROM user WHERE email=?";
+
+    if (!user.email) {
+        return res.status(400).json({ message: "Email is required" });
+    }
+
+    const query = "SELECT email, password FROM user WHERE email = ?";
     
-    // Corrected query execution
-    connection.query(query, [user.email],(err, results) =>{
-        if (!err) {
-            if (results.length <= 0) {
-                return res.status(400).json({message: "User not found"});
-            } else {
-                var mailOptions = {
-                    from: process.env.EMAIL,
-                    to: results[0].email,
-                    subject: 'Password by Cafe Management System',
-                    html: `<p>Your login details for Cafe Management System:</p>
-                           <b>Email:</b> ${results[0].email}<br>
-                           <b>Password:</b> ${results[0].password}<br>
-                           <a href="http://localhost:4200/">Click here to login</a>`
-                };
-                var transporter = nodemailer.createTransport({
-                    service: "gmail",
-                    auth: {
-                      user: process.env.EMAIL,
-                      pass: process.env.PASSWORD,
-                    },
-                  });
-            }
-        } else {
-            return res.status(500).json(err);
+    // Query the database to find the user
+    connection.query(query, [user.email], (err, results) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ message: "Internal server error" });
         }
+
+        if (results.length === 0) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        const { email, password } = results[0];
+
+        // Configure mail transporter
+        const transporter = nodemailer.createTransport({
+            service: "gmail",
+            auth: {
+                user: process.env.EMAIL,
+                pass: process.env.PASSWORD,
+            },
+        });
+
+        // Email options
+        const mailOptions = {
+            from: process.env.EMAIL,
+            to: email,
+            subject: 'Password Recovery - Cafe Management System',
+            html: `
+                <p>Your login details for Cafe Management System:</p>
+                <b>Email:</b> ${email}<br>
+                <b>Password:</b> ${password}<br>
+                <p><a href="http://localhost:4200/">Click here to login</a></p>
+            `,
+        };
+
+        // Send the email
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                console.error(error);
+                return res.status(500).json({ message: "Failed to send email" });
+            }
+
+            return res.status(200).json({ message: "Password sent to your email" });
+        });
     });
 });
+
 
 
 // router.get('/get',auth.authenticateToken,(req,res)=>{
@@ -188,3 +212,35 @@ router.post('/changePassword',auth.authenticateToken,(req,res)=>{
 
 
 module.exports = router;
+
+// router.post('/forgetPassword', (req, res) => {
+//     const user = req.body;
+//     const query = "SELECT email, password FROM user WHERE email=?";
+//     // Corrected query execution
+//     connection.query(query, [user.email],(err, results) =>{
+//         if (!err) {
+//             if (results.length <= 0) {
+//                 return res.status(400).json({message: "User not found"});
+//             } else {
+//                 var mailOptions = {
+//                     from: process.env.EMAIL,
+//                     to: results[0].email,
+//                     subject: 'Password by Cafe Management System',
+//                     html: <p>Your login details for Cafe Management System:</p>
+//                            <b>Email:</b> ${results[0].email}<br>
+//                            <b>Password:</b> ${results[0].password}<br>
+//                            <a href="http://localhost:4200/">Click here to login</a>
+//                 };
+//                 var transporter = nodemailer.createTransport({
+//                     service: "gmail",
+//                     auth: {
+//                       user: process.env.EMAIL,
+//                       pass: process.env.PASSWORD,
+//                     },
+//                   });
+//             }
+//         } else {
+//             return res.status(500).json(err);
+//         }
+//     });
+// });

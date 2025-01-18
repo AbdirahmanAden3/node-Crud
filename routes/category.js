@@ -47,5 +47,3 @@ router.patch('/update',auth.authenticateToken,(req,res,next)=>{
     });
 })
 module.exports = router;
-
-
